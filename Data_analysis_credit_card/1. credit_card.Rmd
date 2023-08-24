@@ -1,0 +1,151 @@
+---
+title: "Exam presentation"
+author: "Redkokosh Kirill"
+date: "1/14/2022"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r, include=FALSE}
+library(lattice)
+library(ggplot2)
+library('GGally')
+library(dplyr)
+library("factoextra")
+library("FactoMineR")
+set.seed(1)
+```
+
+## Считывание данных
+
+```{r, echo=TRUE}
+df <- read.csv2("creditcard.csv")
+head(df)
+```
+
+## Описание признаков
+
+card: Фактор. Была ли принята заявка на кредитную карту?
+
+reports: Количество отчетов о крупных нарушениях.
+
+age: Возраст в годах плюс двенадцатая доля года.
+
+income: Годовой доход (в 10.000 долларов США).
+
+share: Отношение ежемесячных расходов по кредитной карте к годовому доходу.
+
+expenditure: Средний ежемесячный расход по кредитной карте.
+
+dependents: Количество иждивенцев.
+
+months: Количество месяцев проживания по текущему адресу.
+
+MC: Количество основных кредитных карт.
+
+## Описательная статистика
+
+```{r}
+df$card <- as.factor(df$card)
+df$age <- as.double(df$age)
+df$income <- as.double(df$income)
+df$expenditure <- as.double(df$expenditure)
+```
+
+```{r, echo=TRUE}
+df1 <- select(df, card, reports, age, income, 
+              expenditure, dependents, months)
+summary(df1)
+```
+
+## Matrix plot
+
+```{r, echo=TRUE, message = FALSE, warning = FALSE, results=FALSE}
+ggpairs(df1, title="correlogram", columns = c(2:7),
+        diag = list(continuous = "barDiag"), 
+              mapping=aes(colour = card))
+```
+
+## Логарифмируем признаки
+
+```{r}
+df1 <- filter(df1, months != 0)
+```
+
+```{r, echo=TRUE}
+df1l <- transform(df1, age=log(age), 
+                  income=log(income), months=log(months))
+df1l <- rename(df1l, l_age = age, 
+               l_income = income, l_months = months)
+head(df1l, 4)
+```
+
+## Matrix plot новых признаков
+
+```{r, echo=TRUE, message = FALSE, warning = FALSE, results=FALSE}
+  ggpairs(df1l, title="correlogram", columns = c(2:7),
+      diag = list(continuous = "barDiag"), 
+          mapping=aes(colour = card))
+```
+
+## Удаление выбросов
+
+```{r, echo=TRUE, message = FALSE, warning = FALSE, results=FALSE}
+df1lo <- filter(df1l, l_age > 0 & l_income > 0)
+ggpairs(df1lo, title="correlogram", columns = c(2:7),
+      diag=list(continuous="barDiag"),mapping=aes(colour=card))
+```
+
+## Собственные числа 
+
+```{r, echo=TRUE, message = FALSE, warning = FALSE, results=FALSE}
+res.pca <- PCA(df1lo[-1], scale.unit = TRUE, ncp = 4, graph= FALSE)
+fviz_eig(res.pca)
+```
+
+## Матрица из собственных векторов 
+
+```{r, echo=TRUE}
+cbind(colnames(df1lo[-1]), round(res.pca$svd$V, digits = 4))
+```
+
+## Факторные нагрузки
+
+```{r, echo=TRUE}
+get_pca_var(res.pca)$coord
+```
+
+## Факторные нагрузки
+
+```{r, echo=TRUE}
+fviz_pca_var(res.pca, col.var = "darkgreen")
+```
+
+## Хорошо ли ГК описывают признак?
+
+```{r, echo=TRUE, message = FALSE, warning = FALSE, results=FALSE}
+fviz_cos2(res.pca, choice = "var", axes = 1:2)
+```
+
+## Визуализация главных компонент
+
+```{r echo=TRUE}
+fviz_pca_biplot(res.pca)
+```
+
+## Интерпретация 
+
+```{r echo=TRUE}
+df1lo[941, ]$reports
+df1lo[1276, ]$expenditure
+```
+
+## Раскраска
+
+```{r echo=TRUE}
+fviz_pca_biplot(res.pca, habillage=df1lo$card, 
+            addEllipses=TRUE, ellipse.level=0.95)
+```

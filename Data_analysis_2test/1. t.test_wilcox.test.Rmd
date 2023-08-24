@@ -1,0 +1,307 @@
+---
+title: "T-test и тест Манна-Уитни (Вилкоксона). Сравнение по мощности и по устойчивости к выбросам."
+author: "Редкокош Кирилл"
+date: "04.11.2021"
+output: html_document
+header-includes: \usepackage[russian]{babel}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+Рассмотрим случайную величину $\xi$, определенную на некотором вероятностном пространстве $(\Omega, \mathfrak{A}, \mathsf{P})$.
+
+# T-test
+
+## Одновыборочный t-test
+
+Одновыборочный t-test применяется для проверки нулевой гипотезы $H_0: \mathsf{E}\xi=a=a_0$ о равенстве математического ожидания $\mathsf{E}\xi$ некоторому известному значению $a_0$.
+
+Статистика критерия будет иметь следующий вид:
+
+-- $\mathsf{D}\xi=\sigma^2<\infty$:
+      $t=z=\sqrt n\frac{(\overline x-a)}{\sigma}\xrightarrow[n\to\infty]{}N(0,1)$                        
+      Если $\xi\sim N(a,\sigma^2)$, то $t=z\sim N(0,1)$.
+      
+В этом случае разбиение будет иметь следующий вид:                                                       
+      $\quad \quad \quad$ - $H_{1}:\mathsf{E}\xi\neq{a}_{0}$ $A^{(\alpha)}_{\text{крит}}=\mathbb{R}\setminus\left(z_{a/2},z_{1-a/2}\right) \\$                $\quad \quad \quad$ - $H_{1}:\mathsf{E}\xi>{a}_{0}$ $A^{(\alpha)}_{\text{крит}}=(z_{1-a},\infty) \\$                $\quad \quad \quad$ - $H_{1}:\mathsf{E}\xi<{a}_{0}$ $A^{(\alpha)}_{\text{крит}}=(-\infty,z_{a}) \\$
+
+-- $\mathsf{D}\xi$ неизвестна:  
+      $\\$ $t=\sqrt{n-1}\,\frac{\bar{x}-{a}_{0}}{s}=\sqrt{n}\,\frac{\bar{x}-{a}_{0}}{\tilde{s}}\xrightarrow[n\to\infty]{}N(0,1)$                                                                         
+      Если $\xi\sim N(a,\sigma^2)$, то $t\sim t(n-1)$.
+      В этом случае разбиение будет иметь следующий вид:                                                       
+      $\quad \quad \quad$ - $H_{1}:\mathsf{E}\xi\neq{a}_{0}$ $A^{(\alpha)}_{\text{крит}}=\mathbb{R}\setminus\left(qnt_{t(n-1)}(a/2),qnt_{t(n-1)}(1-a/2)\right) \\$                $\quad \quad \quad$ - $H_{1}:\mathsf{E}\xi>{a}_{0}$ $A^{(\alpha)}_{\text{крит}}=(qnt_{t(n-1)}(1-a),\infty) \\$                    $\quad \quad \quad$ - $H_{1}:\mathsf{E}\xi<{a}_{0}$ $A^{(\alpha)}_{\text{крит}}=(-\infty,qnt_{t(n-1)}a) \\$
+      
+## Двухвыборочный t-test для независимых выборок с равной дисперсией
+
+Если дисперсия известна, то статистика критерия будет выглядеть следующим образом:
+
+$t=\dfrac{\bar{x}-\bar{y}}{\sigma\sqrt{\dfrac{1}{n_{1}}+\dfrac{1}{n_{2}}}}\xrightarrow[n_{1},n_{2}\to\infty]{}N(0,1).$
+
+Если данные нормальные, то $t\sim N(0,1)$
+
+Если дисперсия неизвестна:
+
+$t=\dfrac{\bar{x}-\bar{y}}{\tilde{s}_{1,2}\sqrt{\dfrac{1}{n_{1}}+\dfrac{1}{n_{2}}}}\xrightarrow[n_{1},n_{2}\to\infty]{}N(0,1).$  
+
+Если данные нормальные, то $t\sim t(n_1+n_2-2)$
+
+## Двухвыборочный t-test для независимых выборок с различной дисперсией
+
+Если дисперсия известна, то статистика критерия будет выглядеть следующим образом:
+
+$t=\dfrac{\bar{x}-\bar{y}}{\sqrt{\dfrac{\sigma_1^2}{n_{1}}+\dfrac{\sigma_2^2}{n_{2}}}}\xrightarrow[n_{1},n_{2}\to\infty]{}N(0,1).$
+
+Если данные нормальные, то $t\sim N(0,1)$
+
+Если дисперсия неизвестна:
+
+$t=\dfrac{\bar{x}-\bar{y}}{\sqrt{\dfrac{s_1^2}{n_{1}}+\dfrac{s_2^2}{n_{2}}}}\xrightarrow[n_{1},n_{2}\to\infty]{}N(0,1).$  
+
+## Условия применимости
+
+-- Наблюдения в выборке независимы друг от друга (для двухвыборочного критерия- в обеих выборках);
+
+-- Данные имеют распределение близкое к нормальному или объем выборки достаточно велик. 
+      
+# Mann–Whitney U test
+
+Используется для проверки нулевой гипотезы: $P(\xi_1>\xi_2) = \frac{1}{2}$.
+
+Для построения статистики критерия U необходимо составить единый ранжированный ряд из обеих сопоставляемых выборок, расставив их элементы по степени нарастания признака и приписав меньшему значению меньший ранг (при наличии повторяющихся элементов в выборке использовать средний ранг). Разделить единый ранжированный ряд на два, состоящих соответственно из единиц первой и второй выборок. Подсчитать отдельно сумму рангов, пришедшихся на долю элементов первой выборки $W_1$, и отдельно — на долю элементов второй выборки $W_2$, статистика критерия будет иметь следующий вид: 
+
+$U:=\max(n_{1}n_{2}+\frac{n_{1}(n_{1}+1)}{2}-W_{1},n_{1}n_{2}+\frac{n_{2}(n_{2}+1)}{2}-W_{2}).$
+
+Если верна $H_0$, то $\mathsf{E}U=\frac{n_1n_2}{2}$, $\mathsf{D}U=n_1n_2\frac{n_1+n_2+1}{12}$ и $\frac{U-\mathsf{E} U}{\sqrt{\mathsf{D} U}}\xrightarrow[n_{1},n_{2}\to\infty]{}N(0,1)$
+
+Критерий состоятельный против альтернативы $H_{1}:P(\xi_{1}>\xi_{2})\ne P(\xi_{1}<\xi_{2})$.
+Если формы распределений одинаковы, то эта альтернатива обозначает сдвиг. Для симметричных распределений это условие обозначает равенство медиан (а для нормального --- математических ожиданий). 
+
+Так как критерий является ранговым, то он устойчив к выбросам, хоть и за счет небольшой потери мощности при сравнении с t-test.
+
+##Условия применимости
+
+-- Наблюдения в выборке независимы друг от друга;
+
+-- Наблюдения в выборке, по крайней мере, порядковые;
+
+-- В выборочных данных не должно быть совпадающих значений (все числа — разные) или таких совпадений должно быть очень мало.
+
+# Моделирование
+
+Рассмотрим p-value как случайную величину:
+
+$\alpha_1=P_{H_0}(H_0$ отвергается) = $\alpha \Leftrightarrow P_{H_0}(\alpha>p)=\alpha \Leftrightarrow P_{H_0}(p<\alpha)=\alpha$
+
+Соответственно, если верна $H_0$, то p-value равномерно распределено на [0,1].
+
+Смоделируем 10000 выбор (по 1000 индивидов) из стандартного нормального распределения. Подсчитываем выборки p-value (отдельно для t-test и wilcox test) и строим функции распределения.
+
+```{r}
+set.seed(1)
+size <- 10000
+individuals <- 1000
+samp <- matrix(rnorm(individuals * size, 0, 1), ncol = size)
+pvalT <- apply(samp, 2, function(x)
+t.test(x, mu = 0)$p.value)
+plot(ecdf(pvalT), col='green', main ="Эмперическое распределение p-value для t-test")
+lines(c(0,1), c(0,1))
+legend("topleft", c("t-test"), title = "Критерий", fill=c("green"))
+pvalW <- apply(samp, 2, function(x)
+wilcox.test(x, mu = 0)$p.value)
+plot(ecdf(pvalW), col='red', main ="Эмперическое распределение p-value для wilcox.test")
+lines(c(0,1), c(0,1))
+legend("topleft", c("wilcox.test"), title = "Критерий", fill=c("red"))
+```
+
+Эмпирические функции распределения совпадают с прямой y=x (на [0,1]), значит оба критерия точные (так как p-value равномерно распределено на [0,1]).
+
+## Устойчивость к выбросам
+
+Добавим 20 выбросов (небольших) с одной из сторон (в данном случае справа) и посмотрим на поведения эмпирической функции распределения p-value. 
+
+```{r}
+amount_of_outliers <- 20
+right <- matrix(rnorm(amount_of_outliers * size, 3, 1), ncol = size)
+sampRight <- matrix(data=rbind(samp, right), ncol = size)
+t_r <- apply(sampRight, 2, function(x)
+t.test(x, mu = 0)$p.value)
+plot(ecdf(t_r), col='green', main ="Эмперическое распределение p-value при 20 выбросах")
+lines(c(0,1), c(0,1))
+w_r <- apply(sampRight, 2, function(x)
+wilcox.test(x, mu = 0)$p.value)
+lines(ecdf(w_r), col='red')
+legend("topleft", c("t-test", "wilcox.test"), title = "Критерий", fill=c("green", "red"))
+```
+
+Оба критерия стали радикальными, а значит неприменимыми. Стоит заметить, что wilcox test ближе к прямой y=x (на [0,1]), соответственно он является более устойчивым к выбросам такого типа (но все еще неприменимым при таком количестве выбросов).
+
+Добавим ещё 20 выбросов (небольших) с другой стороны (слева) и посмотрим на поведения эмпирической функции распределения p-value. 
+
+```{r}
+left <- matrix(rnorm(amount_of_outliers * size, -3, 1), ncol = size)
+sampRightAndLeft <- matrix(data=rbind(sampRight, left), ncol = size)
+t_rl <- apply(sampRightAndLeft, 2, function(x)
+t.test(x, mu = 0)$p.value)
+plot(ecdf(t_rl), col='green', main ="Эмперическое распределение p-value при выбросах с обеих сторон")
+lines(c(0,1), c(0,1))
+w_rl <- apply(sampRightAndLeft, 2, function(x)
+wilcox.test(x, mu = 0)$p.value)
+lines(ecdf(w_rl), col='red')
+legend("topleft", c("t-test", "wilcox.test"), title = "Критерий", fill=c("green", "red"))
+```
+
+Оба критерия стали консервативными (в силу увеличения дисперсии распределения при таком же математическом ожидании), wilcox test ближе к прямой y=x (на [0,1]).
+
+Рассмотрим исходную модель с добавлением одного выброса, но очень отдаленного. А также двух отдальенных выбросов с обеих сторон.
+
+```{r}
+outlier1 <- matrix(rnorm(size, -65, 1), ncol = size)
+sampOut1 <- matrix(data=rbind(samp, outlier1), ncol = size)
+t_out1 <- apply(sampOut1, 2, function(x)
+t.test(x, mu = 0)$p.value)
+plot(c(0,1), c(0,1), type="l", main ="Эмперическое распределение p-value при 1 сильном выбросе")
+lines(ecdf(t_out1), col='green')
+w_out1 <- apply(sampOut1, 2, function(x)
+wilcox.test(x, mu = 0)$p.value)
+lines(ecdf(w_out1), col='red')
+legend("topleft", c("t-test", "wilcox.test"), title = "Критерий", fill=c("green", "red"))
+outlier2 <- matrix(rnorm(size, 65, 1), ncol = size)
+sampOut2 <- matrix(data=rbind(sampOut1, outlier2), ncol = size)
+t_out2 <- apply(sampOut2, 2, function(x)
+t.test(x, mu = 0)$p.value)
+plot(c(0,1), c(0,1), type="l", main ="Эмперическое распределение p-value при 2 сильных выбросах")
+lines(ecdf(t_out2), col='green')
+w_out2 <- apply(sampOut2, 2, function(x)
+wilcox.test(x, mu = 0)$p.value)
+lines(ecdf(w_out2), col='red')
+legend("topleft", c("t-test", "wilcox.test"), title = "Критерий", fill=c("green", "red"))
+```
+
+Случай с 1 выбросом: wilcox test почти неотличим от прямой y=x (на [0,1]), а значит он устойчив к таким выбросам. В то же время t-test для стандартных уровней значимости ($\alpha$ < 0.2) является консервативным, после чего становится радикальным (чем более отдаленный выброс мы рассматриваем тем дальше находится точка пересечения с прямой y=x).
+
+Случай с 2 выбросами: wilcox test почти неотличим от прямой y=x (на [0,1]), а значит он устойчив к таким выбросам. В то же время t-test является консервативным.
+
+## Мощность
+
+Рассматривая p-value как случайную величину:
+
+$\alpha_{II} = P_{H_1}(H_0$ не отвергается) $\Leftrightarrow \alpha_{II} = P_{H_1}(\alpha < p) \Leftrightarrow \alpha_{II} = 1 - P_{H_1}(p < \alpha) \Leftrightarrow P_{H_1}(p < \alpha) = \beta$.
+
+Таким образом, если верна альтернативная гипотеза, то через эмпирическую функцию распределения p-value можно определить мощность критерия против альтернативы $H_1$. Соответственно, для сравнение критериев по мощности против альтернативы $H_1$ необходимо, что бы $H_1$ была одинакова для обоих тестов.
+
+Оценим мощность этих двух критериев, для этого два раза смоделируем 150 выборок (по 10000 индивидов) из нормального распределения (1. С математическим ожиданием 0.1 и дисперсией 1; 2. С математическим ожиданием 0.25 и дисперсией 1). Подсчитываем выборки p-value (отдельно для t-test и wilcox test) и строим функции распределения. Первый случай -- мощность против альтернативной гипотезы, что математическое ожидание равно 0.1, второй -- мощность против альтернативной гипотезы, что математическое ожидание равно 0.25.
+
+```{r}
+samp1 <- matrix(rnorm(10000 * 150, 0.1, 1), ncol = 10000)
+samp2 <- matrix(rnorm(10000 * 150, 0.25, 1), ncol = 10000)
+pval1_t <- apply(samp1, 2, function(x)
+t.test(x, mu = 0)$p.value)
+plot(c(0,1), c(0,1), type="l")
+lines(ecdf(pval1_t), col='green')
+pval1_w <- apply(samp1, 2, function(x)
+wilcox.test(x, mu = 0)$p.value)
+lines(ecdf(pval1_w), col='red')
+legend("topleft", c("t-test", "wilcox.test"), title = "Критерий", fill=c("green", "red"))
+pval2_t <- apply(samp2, 2, function(x)
+t.test(x, mu = 0)$p.value)
+plot(c(0,1), c(0,1),  type="l")
+lines(ecdf(pval2_t), col='green')
+pval2_w <- apply(samp2, 2, function(x)
+wilcox.test(x, mu = 0)$p.value)
+lines(ecdf(pval2_w), col='red')
+legend("topleft", c("t-test", "wilcox.test"), title = "Критерий", fill=c("green", "red"))
+```
+
+Мощность против обеих альтернатив t-test больше мощности wilcox test (против соответствующих альтернатив), а также заметим, что оба критерия являются более мощными против альтернативной гипотезы, что математическое ожидание равно 0.25, так как альтернатива находится дальше от нулевой гипотезы.
+
+Сравним мощности t-test и wilcox test в случае с выбросами с обеих сторон (так как они применимы- не радикальны) против альтернативы, что математическое ожидание равно 0.07.
+
+```{r}
+pvalrl_t <- apply(sampRightAndLeft, 2, function(x)
+t.test(x, mu = 0.07)$p.value)
+plot(c(0,1), c(0,1), type="l")
+lines(ecdf(pvalrl_t), col='green')
+pvalrl_w <- apply(sampRightAndLeft, 2, function(x)
+wilcox.test(x, mu = 0.07)$p.value)
+lines(ecdf(pvalrl_w), col='red')
+legend("topleft", c("t-test", "wilcox.test"), title = "Критерий", fill=c("green", "red"))
+pvalOut2_t <- apply(sampOut2, 2, function(x)
+t.test(x, mu = 0.07)$p.value)
+plot(c(0,1), c(0,1), type="l")
+lines(ecdf(pvalOut2_t), col='green')
+pvalOut2_w <- apply(sampOut2, 2, function(x)
+wilcox.test(x, mu = 0.07)$p.value)
+lines(ecdf(pvalOut2_w), col='red')
+legend("topleft", c("t-test", "wilcox.test"), title = "Критерий", fill=c("green", "red"))
+```
+
+В обоих случаях wilcox test является более мощным против гипотезы, что математическое ожидание равно 0.07.
+
+Проверим состоятельность критериев, для этого рассмотрим выборки из $N(0.1,1)$, но в 10 увеличим число выборок.
+
+```{r}
+samp3 <- matrix(rnorm(10000 * 1500, 0.1, 1), ncol = 10000)
+pval3_t <- apply(samp3, 2, function(x)
+t.test(x, mu = 0)$p.value)
+plot(c(0,1), c(0,1), type="l", main ="Эмперическое распределение p-value для проверки состоятельности")
+lines(ecdf(pval3_t), col='green')
+pval3_w <- apply(samp3, 2, function(x)
+wilcox.test(x, mu = 0)$p.value)
+lines(ecdf(pval3_w), col='red')
+legend("topleft", c("t-test", "wilcox.test"), title = "Критерий", fill=c("green", "red"))
+```
+
+При росте числа выборок мощность (против альтернативной гипотезы, что математическое ожидание равно 0.1) стремится к 1, значит оба критерия состоятельные (против альтернативной гипотезы, что математическое ожидание равно 0.1).
+
+## Выводы
+Было продемонстрировано, что оба критерия являются точными. 
+
+Преимущества wilcox test:
+
+- Более устойчив к выбросам, нечувствителен к единичным даже очень сильным выбросам. 
+
+Преимущества t-test:
+
+- Является более мощным (при одинаковых альтернативных гипотезах).
+
+Оба критерия состоятельные против альтернатив об отличном математическом ожидании.
+
+# Применение к реальным данным 
+
+```{r}
+library(GGally)
+library(ggpubr)
+```
+
+Были выбраны данные, содержащие данные о качестве красного португальского вина «Vinho Verde»– https://www.kaggle.com/uciml/red-wine-quality-cortez-et-al-2009.
+
+Группировка данных производилась следующим образом: в нулевой группе те индивиды, которые имеет оценку quality не выше среднего, а в первой группе- выше среднего.
+
+```{r}
+df <- subset(read.csv("winequality-red2.csv", header = TRUE, as.is = FALSE), select = c(1,4,5,9,12), sep=',') 
+head(df)
+df$col[df$quality > median(df$quality)] <- '1'
+df$col[df$quality <= median(df$quality)] <- '0'
+ggpairs(df, columns=c(1:4), ggplot2::aes(colour=col), diag = list(continuous = "barDiag"))
+```
+
+Выборка состоит из 1599 наблюдений, можно говорить об асимптотическом схождении к стандартному нормальному распределению статистик критериев t-test и wilcox.test.
+
+Посмотрим на boxplot данных pH (и в дальнейшем будем анализировать данные о pH).
+
+```{r}
+boxplot(subset(df, col == "0")$pH, subset(df, col == "1")$pH)
+```
+
+На boxplot видно, что при примерно равны медианы и разброс, а также наблюдаются outliers.
+
+Проверим гипотезу о равенстве средних при помощи t-test и гипотезу о равном сдвиге (так как формы распределения одинаковы) при помощи wilcox.test.
+
+```{r}
+t.test(subset(df, col == "0")$pH, subset(df, col == "1")$pH)
+wilcox.test(subset(df, col == "0")$pH, subset(df, col == "1")$pH)
+```
+
+Обе рассматриваемых гипотезы отвергаются, так как p-value меньше уровня значимости 0.05. 
